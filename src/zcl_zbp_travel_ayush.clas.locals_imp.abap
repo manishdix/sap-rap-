@@ -21,6 +21,8 @@ CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR ACTION zi_ztravel_tech_m~reject RESULT result.
     METHODS get_instance_features FOR INSTANCE FEATURES
       IMPORTING keys REQUEST requested_features FOR zi_ztravel_tech_m RESULT result.
+    METHODS val_customerid FOR VALIDATE ON SAVE
+      IMPORTING keys FOR zi_ztravel_tech_m~val_customerid.
 
 ENDCLASS.
 
@@ -205,9 +207,9 @@ CLASS lhc_Travel IMPLEMENTATION.
 
   METHOD approve.
 
-        MODIFY ENTITY zi_ztravel_tech_m
-      UPDATE FIELDS ( OverallStatus )
-      WITH VALUE #(  for key IN keys ( %pky = key-%pky OverallStatus = 'A' )  ).
+    MODIFY ENTITY zi_ztravel_tech_m
+  UPDATE FIELDS ( OverallStatus )
+  WITH VALUE #(  FOR key IN keys ( %pky = key-%pky OverallStatus = 'A' )  ).
 
     READ ENTITY zi_ztravel_tech_m
    ALL FIELDS WITH CORRESPONDING #( keys )
@@ -254,15 +256,43 @@ CLASS lhc_Travel IMPLEMENTATION.
     WITH CORRESPONDING #(  keys )
     RESULT DATA(wtl_travel).
     IF wtl_travel IS NOT INITIAL.
-        result = VALUE #( for wel_travel IN wtl_travel (
-                            %tky =  wel_travel-%tky
-                            %features-%action-approve = COND #( WHEN wel_travel-OverallStatus = 'A'
-                                                                THEN '01' )
-                            %features-%action-reject = COND #( WHEN wel_travel-OverallStatus = 'X'
-                                                                THEN '01'  )
-                            %assoc-_Booking = COND #( WHEN wel_travel-OverallStatus = 'X'
-                                                                THEN '01' )
-                        ) ).
+      result = VALUE #( FOR wel_travel IN wtl_travel (
+                          %tky =  wel_travel-%tky
+                          %features-%action-approve = COND #( WHEN wel_travel-OverallStatus = 'A'
+                                                              THEN '01' )
+                          %features-%action-reject = COND #( WHEN wel_travel-OverallStatus = 'X'
+                                                              THEN '01'  )
+                          %assoc-_Booking = COND #( WHEN wel_travel-OverallStatus = 'X'
+                                                              THEN '01' )
+                      ) ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD val_customerid.
+    READ ENTITY IN LOCAL MODE zi_ztravel_tech_m
+    FIELDS (  CustomerId )
+    WITH CORRESPONDING #(  keys )
+    RESULT DATA(wtl_travel).
+    IF wtl_travel IS NOT INITIAL.
+        SELECT customer_Id FROM /dmo/customer
+        FOR ALL ENTRIES IN @wtl_travel
+        WHERE customer_Id = @wtl_travel-CustomerId
+        INTO TABLE @DATA(wtl_customer) .
+       IF wtl_customer IS NOT INITIAL.
+        LOOP AT wtl_travel INTO DATA(wel_data).
+            IF wel_Data-CustomerId IS INITIAL OR NOT Line_exists( wtl_customer[  customer_id = wel_data-CustomerId ]  ).
+                failed-zi_ztravel_tech_m = VALUE #( BASE failed-zi_ztravel_tech_m (  %tky =  wel_data-%tky   ) ).
+                reported-zi_ztravel_tech_m = VALUE #( BASE reported-zi_ztravel_tech_m (  %tky =  wel_data-%tky
+                                                                                         %msg = NEW /dmo/cm_flight_messages(
+                  textid                = /dmo/cm_flight_messages=>customer_unkown
+                  customer_id           = wel_data-CustomerId
+                  severity = CONV #( 'E' )
+                    )
+                                                                                         %element-customerid = '01'
+                                                                                         ) ).
+            ENDIF.
+        ENDLOOP.
+       ENDIF.
     ENDIF.
   ENDMETHOD.
 

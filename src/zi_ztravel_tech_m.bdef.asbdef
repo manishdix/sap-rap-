@@ -18,6 +18,7 @@ early numbering
   factory action copyTravel [1];
   action ( features : instance ) approve  result  [1]   $self ;
   action ( features : instance ) reject result [1] $self;
+  validation val_customerid on save { create  ; field CustomerId, AgencyId;  }
   mapping for ztravel_ayush
     {
       TravelId      = travel_id;
