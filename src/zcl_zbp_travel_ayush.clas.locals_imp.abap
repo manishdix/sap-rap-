@@ -14,6 +14,13 @@ CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS copyTravel FOR MODIFY
       IMPORTING keys FOR ACTION zi_ztravel_tech_m~copyTravel.
+    METHODS approve FOR MODIFY
+      IMPORTING keys FOR ACTION zi_ztravel_tech_m~approve RESULT result.
+
+    METHODS reject FOR MODIFY
+      IMPORTING keys FOR ACTION zi_ztravel_tech_m~reject RESULT result.
+    METHODS get_instance_features FOR INSTANCE FEATURES
+      IMPORTING keys REQUEST requested_features FOR zi_ztravel_tech_m RESULT result.
 
 ENDCLASS.
 
@@ -194,6 +201,69 @@ CLASS lhc_Travel IMPLEMENTATION.
     mapped = VALUE #( zi_ztravel_tech_m = wt_data-zi_ztravel_tech_m
                       zi_zbooking_techm = wt_data-zi_zbooking_techm
                       zi_zbooksuppl_tech_m = wt_data-zi_zbooksuppl_tech_m ).
+  ENDMETHOD.
+
+  METHOD approve.
+
+        MODIFY ENTITY zi_ztravel_tech_m
+      UPDATE FIELDS ( OverallStatus )
+      WITH VALUE #(  for key IN keys ( %pky = key-%pky OverallStatus = 'A' )  ).
+
+    READ ENTITY zi_ztravel_tech_m
+   ALL FIELDS WITH CORRESPONDING #( keys )
+   RESULT DATA(wtl_travel).
+
+    IF wtl_travel IS NOT INITIAL.
+
+      LOOP AT wtl_travel ASSIGNING FIELD-SYMBOL(<fs_travel>).
+
+        APPEND VALUE #( %tky = <fs_travel>-%tky %param = <fs_travel> )  TO result.
+      ENDLOOP.
+
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD reject.
+
+    READ ENTITY zi_ztravel_tech_m
+   ALL FIELDS WITH CORRESPONDING #( keys )
+   RESULT DATA(wtl_travel).
+
+    IF wtl_travel IS NOT INITIAL.
+
+      DATA(wel_keys)  = VALUE #( keys[ 1 ]  OPTIONAL ).
+      LOOP AT wtl_travel ASSIGNING FIELD-SYMBOL(<fs_travel>) WHERE travelid = wel_keys-%pky-TravelId.
+        <fs_travel>-OverallStatus = 'X'.
+        APPEND VALUE #( %cid_ref = wel_keys-%cid_ref travelId  = <fs_travel>-TravelId %param = CORRESPONDING #( <fs_travel>-%data ) ) TO result.
+      ENDLOOP.
+      MODIFY ENTITY zi_ztravel_tech_m
+      UPDATE FIELDS ( OverallStatus )
+      WITH CORRESPONDING #(  wtl_travel ).
+
+    ENDIF.
+
+
+
+  ENDMETHOD.
+
+  METHOD get_instance_features.
+    READ ENTITIES OF zi_ztravel_tech_m IN LOCAL MODE
+    ENTITY zi_ztravel_tech_m
+    FIELDS ( TravelId OverallStatus )
+    WITH CORRESPONDING #(  keys )
+    RESULT DATA(wtl_travel).
+    IF wtl_travel IS NOT INITIAL.
+        result = VALUE #( for wel_travel IN wtl_travel (
+                            %tky =  wel_travel-%tky
+                            %features-%action-approve = COND #( WHEN wel_travel-OverallStatus = 'A'
+                                                                THEN '01' )
+                            %features-%action-reject = COND #( WHEN wel_travel-OverallStatus = 'X'
+                                                                THEN '01'  )
+                            %assoc-_Booking = COND #( WHEN wel_travel-OverallStatus = 'X'
+                                                                THEN '01' )
+                        ) ).
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.

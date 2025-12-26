@@ -1,5 +1,5 @@
 managed;
-strict ( 2 );
+strict( 2 );
 
 define behavior for ZI_ZTRAVEL_TECH_M
 implementation in class zcl_zbp_travel_ayush unique
@@ -13,8 +13,11 @@ early numbering
   update;
   delete;
   field ( readonly ) TravelId;
-  association _Booking { create; }
+  field ( mandatory ) AgencyId, OverallStatus;
+  association _Booking { create ( features : instance ); }
   factory action copyTravel [1];
+  action ( features : instance ) approve  result  [1]   $self ;
+  action ( features : instance ) reject result [1] $self;
   mapping for ztravel_ayush
     {
       TravelId      = travel_id;
@@ -46,7 +49,7 @@ early numbering
   delete;
   field ( readonly ) TravelId, BookingId;
   association _Travel;
-  association _Bookingsuppl { create; }
+  association _Bookingsuppl {  create ( features : instance ); }
   mapping for zbooking_ayush
     {
       TravelId      = travel_id;

@@ -1,16 +1,8 @@
 @Metadata.layer: #CORE
-@Search.searchable: true
-@UI.headerInfo: {
-    typeName: 'Travel',
-    typeNamePlural: 'Travels',
-    title: {
-        type: #STANDARD,
-        label: 'Travel',
-        value: 'TravelId'
-    }
-}
-annotate view ZC_ZTRAVEL_TECH_M with
+annotate entity ZC_ZTRAVEL_Approver
+    with 
 {
+
   @UI.facet: [{
       id: 'Travel',
       purpose: #STANDARD,
@@ -29,10 +21,11 @@ annotate view ZC_ZTRAVEL_TECH_M with
   ]
 
   @UI.lineItem: [{ position: 10 },
-                 { type:#FOR_ACTION, dataAction: 'copyTravel', label: 'Copy Travel' },
                  { type:#FOR_ACTION, dataAction: 'approve', label: 'Approve' },
                  { type:#FOR_ACTION, dataAction: 'reject', label: 'Reject' }]
-  @UI.identification: [{ position: 10 }]
+  @UI.identification: [{ position: 10 },
+                        { type:#FOR_ACTION, dataAction: 'approve', label: 'Approve' },
+                 { type:#FOR_ACTION, dataAction: 'reject', label: 'Reject' } ]
   @Search.defaultSearchElement: true
   TravelId;
   @UI: { lineItem: [{ position: 20 }],
@@ -90,4 +83,5 @@ annotate view ZC_ZTRAVEL_TECH_M with
   // OverallStatusText;
   @UI.hidden: true
   LastChangedAt;
+    
 }
