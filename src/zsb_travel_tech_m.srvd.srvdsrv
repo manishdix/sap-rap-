@@ -1,0 +1,6 @@
+@EndUserText.label: 'ZSB_TRAVEL_TECHM'
+define service ZSB_TRAVEL_TECH_M {
+  expose ZC_ZTRAVEL_TECH_M;
+  expose ZC_zBOOKING_TECHM;
+  expose ZC_ZBOOKSUPPL_TECH_M;
+}

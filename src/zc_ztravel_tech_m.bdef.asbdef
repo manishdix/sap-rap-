@@ -1,0 +1,30 @@
+projection;
+strict ( 2 );
+
+define behavior for ZC_ZTRAVEL_TECH_M //alias <alias_name>
+{
+  use create;
+  use update;
+  use delete;
+  use action copyTravel;
+
+  use association _Booking { create; }
+}
+
+define behavior for ZC_zBOOKING_TECHM //alias <alias_name>
+{
+  use update;
+  use delete;
+
+  use association _Travel;
+  use association _Bookingsuppl { create; }
+}
+
+define behavior for ZC_ZBOOKSUPPL_TECH_M //alias <alias_name>
+{
+  use update;
+  use delete;
+
+  use association _Travel;
+  use association _Booking;
+}
