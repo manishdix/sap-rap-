@@ -10,65 +10,91 @@ CLASS lsc_zi_ztravel_tech_m IMPLEMENTATION.
 
   METHOD save_modified.
     DATA: wtl_travel TYPE TABLE OF zlog_travel_m.
+    DATA: wtl_supplement TYPE TABLE OF zbooksup_ayush.
 
-    Loop AT create-zi_ztravel_tech_m INTO DATA(wel_data).
-          TRY.
-              APPEND VALUE #( travelId = wel_data-TravelId
-                             change_id = cl_system_uuid=>create_uuid_x16_static( )
-                             changing_operation = 'CREATE'
-                             changed_field_name = 'Customer Id'
-                             changed_value = wel_data-CustomerId
-                              ) TO wtl_travel.
-              APPEND VALUE #( travelId = wel_data-TravelId
-                             change_id = cl_system_uuid=>create_uuid_x16_static( )
-                             changing_operation = 'CREATE'
-                             changed_field_name = 'Agency Id'
-                             changed_value = wel_data-AgencyId
-                              ) TO wtl_travel.
-            CATCH cx_uuid_error.
-              "handle exception
-          ENDTRY.
+    LOOP AT create-zi_ztravel_tech_m INTO DATA(wel_data).
+      TRY.
+          APPEND VALUE #( travelId = wel_data-TravelId
+                         change_id = cl_system_uuid=>create_uuid_x16_static( )
+                         changing_operation = 'CREATE'
+                         changed_field_name = 'Customer Id'
+                         changed_value = wel_data-CustomerId
+                          ) TO wtl_travel.
+          APPEND VALUE #( travelId = wel_data-TravelId
+                         change_id = cl_system_uuid=>create_uuid_x16_static( )
+                         changing_operation = 'CREATE'
+                         changed_field_name = 'Agency Id'
+                         changed_value = wel_data-AgencyId
+                          ) TO wtl_travel.
+        CATCH cx_uuid_error.
+          "handle exception
+      ENDTRY.
     ENDLOOP.
 
-    Loop AT update-zi_ztravel_tech_m INTO DATA(wel_data1).
-          TRY.
-              IF wel_data1-%control-CustomerId = '01'.
-              APPEND VALUE #( travelId = wel_data1-TravelId
-                             change_id = cl_system_uuid=>create_uuid_x16_static( )
-                             changing_operation = 'UPDATE'
-                             changed_field_name = 'Customer Id'
-                             changed_value = wel_data1-CustomerId
-                              ) TO wtl_travel.
-              ENDIF.
+    LOOP AT update-zi_ztravel_tech_m INTO DATA(wel_data1).
+      TRY.
+          IF wel_data1-%control-CustomerId = '01'.
+            APPEND VALUE #( travelId = wel_data1-TravelId
+                           change_id = cl_system_uuid=>create_uuid_x16_static( )
+                           changing_operation = 'UPDATE'
+                           changed_field_name = 'Customer Id'
+                           changed_value = wel_data1-CustomerId
+                            ) TO wtl_travel.
+          ENDIF.
 
-              IF wel_data1-%control-AgencyId = '01'.
-              APPEND VALUE #( travelId = wel_data1-TravelId
-                              change_id = cl_system_uuid=>create_uuid_x16_static( )
-                             changing_operation = 'UPDATE'
-                             changed_field_name = 'Agency Id'
-                             changed_value = wel_data1-CustomerId
-                              ) TO wtl_travel.
-              ENDIF.
-            CATCH cx_uuid_error.
-              "handle exception
-          ENDTRY.
+          IF wel_data1-%control-AgencyId = '01'.
+            APPEND VALUE #( travelId = wel_data1-TravelId
+                            change_id = cl_system_uuid=>create_uuid_x16_static( )
+                           changing_operation = 'UPDATE'
+                           changed_field_name = 'Agency Id'
+                           changed_value = wel_data1-AgencyId
+                            ) TO wtl_travel.
+          ENDIF.
+        CATCH cx_uuid_error.
+          "handle exception
+      ENDTRY.
     ENDLOOP.
 
-    Loop AT delete-zi_ztravel_tech_m INTO DATA(wel_data2).
-          TRY.
+    LOOP AT delete-zi_ztravel_tech_m INTO DATA(wel_data2).
+      TRY.
 
-              APPEND VALUE #( travelId = wel_data2-TravelId
-                             change_id = cl_system_uuid=>create_uuid_x16_static( )
-                             changing_operation = 'DELETE'
-                             changed_field_name = 'Travel Id'
-                              ) TO wtl_travel.
+          APPEND VALUE #( travelId = wel_data2-TravelId
+                         change_id = cl_system_uuid=>create_uuid_x16_static( )
+                         changing_operation = 'DELETE'
+                         changed_field_name = 'Travel Id'
+                          ) TO wtl_travel.
 
-            CATCH cx_uuid_error.
-              "handle exception
-          ENDTRY.
+        CATCH cx_uuid_error.
+          "handle exception
+      ENDTRY.
     ENDLOOP.
 
     INSERT zlog_travel_m FROM TABLE @wtl_travel.
+
+    IF create-zi_zbooksuppl_tech_m IS NOT INITIAL.
+      wtl_supplement = CORRESPONDING #( create-zi_zbooksuppl_tech_m MAPPING booking_id = BookingId booking_supplement_id = BookingSupplementId
+                                                                            currency_code = CurrencyCode last_changed_at = LastChangedAt
+                                                                            price = Price travel_id = TravelId supplement_id = SupplementId
+                                                                            ).
+      INSERT zbooksup_ayush FROM TABLE @wtl_supplement.
+    ENDIF.
+
+    IF update-zi_zbooksuppl_tech_m IS NOT INITIAL.
+      wtl_supplement = CORRESPONDING #( update-zi_zbooksuppl_tech_m MAPPING booking_id = BookingId booking_supplement_id = BookingSupplementId
+                                                                            currency_code = CurrencyCode last_changed_at = LastChangedAt
+                                                                            price = Price travel_id = TravelId supplement_id = SupplementId
+                                                                            ).
+      INSERT zbooksup_ayush FROM TABLE @wtl_supplement.
+    ENDIF.
+
+    IF delete-zi_zbooksuppl_tech_m IS NOT INITIAL.
+      wtl_supplement = CORRESPONDING #( delete-zi_zbooksuppl_tech_m MAPPING booking_id = BookingId
+                                                                            booking_supplement_id = BookingSupplementId
+                                                                            travel_id = TravelId
+                                                                            ).
+      DELETE zbooksup_ayush FROM TABLE @wtl_supplement.
+    ENDIF.
+
   ENDMETHOD.
 
 ENDCLASS.
@@ -353,24 +379,24 @@ CLASS lhc_Travel IMPLEMENTATION.
     WITH CORRESPONDING #(  keys )
     RESULT DATA(wtl_travel).
     IF wtl_travel IS NOT INITIAL.
-        SELECT customer_Id FROM /dmo/customer
-        FOR ALL ENTRIES IN @wtl_travel
-        WHERE customer_Id = @wtl_travel-CustomerId
-        INTO TABLE @DATA(wtl_customer) .
+      SELECT customer_Id FROM /dmo/customer
+      FOR ALL ENTRIES IN @wtl_travel
+      WHERE customer_Id = @wtl_travel-CustomerId
+      INTO TABLE @DATA(wtl_customer) .
 
-        LOOP AT wtl_travel INTO DATA(wel_data).
-            IF wel_Data-CustomerId IS INITIAL OR NOT Line_exists( wtl_customer[  customer_id = wel_data-CustomerId ]  ).
-                failed-zi_ztravel_tech_m = VALUE #( BASE failed-zi_ztravel_tech_m (  %tky =  wel_data-%tky   ) ).
-                reported-zi_ztravel_tech_m = VALUE #( BASE reported-zi_ztravel_tech_m (  %tky =  wel_data-%tky
-                                                                                         %msg = NEW /dmo/cm_flight_messages(
-                  textid                = /dmo/cm_flight_messages=>customer_unkown
-                  customer_id           = wel_data-CustomerId
-                  severity = CONV #( 'E' )
-                    )
-                                                                                         %element-customerid = '01'
-                                                                                         ) ).
-            ENDIF.
-        ENDLOOP.
+      LOOP AT wtl_travel INTO DATA(wel_data).
+        IF wel_Data-CustomerId IS INITIAL OR NOT Line_exists( wtl_customer[  customer_id = wel_data-CustomerId ]  ).
+          failed-zi_ztravel_tech_m = VALUE #( BASE failed-zi_ztravel_tech_m (  %tky =  wel_data-%tky   ) ).
+          reported-zi_ztravel_tech_m = VALUE #( BASE reported-zi_ztravel_tech_m (  %tky =  wel_data-%tky
+                                                                                   %msg = NEW /dmo/cm_flight_messages(
+            textid                = /dmo/cm_flight_messages=>customer_unkown
+            customer_id           = wel_data-CustomerId
+            severity = CONV #( 'E' )
+              )
+                                                                                   %element-customerid = '01'
+                                                                                   ) ).
+        ENDIF.
+      ENDLOOP.
 
     ENDIF.
   ENDMETHOD.
@@ -383,10 +409,10 @@ CLASS lhc_Travel IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD recal_price.
-      READ ENTITY IN LOCAL MODE zi_ztravel_tech_m
-      FIELDS ( travelID BookingFee CurrencyCode )
-      WITH CORRESPONDING #(  keys )
-      RESULT DATA(wtl_travel).
+    READ ENTITY IN LOCAL MODE zi_ztravel_tech_m
+    FIELDS ( travelID BookingFee CurrencyCode )
+    WITH CORRESPONDING #(  keys )
+    RESULT DATA(wtl_travel).
 
     READ ENTITIES OF zi_ztravel_tech_m IN LOCAL MODE
     ENTITY zi_ztravel_tech_m BY \_Booking
@@ -400,28 +426,28 @@ CLASS lhc_Travel IMPLEMENTATION.
       WITH CORRESPONDING #(  wtl_booking )
       RESULT DATA(wtl_book_suppl).
 
-     LOOP AT wtl_travel ASSIGNING FIELD-SYMBOL(<fs_travel>).
-        IF <fs_travel>-CurrencyCode IS NOT INITIAL.
+    LOOP AT wtl_travel ASSIGNING FIELD-SYMBOL(<fs_travel>).
+      IF <fs_travel>-CurrencyCode IS NOT INITIAL.
         <fs_travel>-TotalPrice = <fs_travel>-BookingFee.
-        ENDIF.
+      ENDIF.
 
-        LOOP AT wtl_booking ASSIGNING FIELD-SYMBOL(<fs_booking>).
+      LOOP AT wtl_booking ASSIGNING FIELD-SYMBOL(<fs_booking>).
         IF <fs_booking>-CurrencyCode IS NOT INITIAL.
-        <fs_travel>-TotalPrice = <fs_travel>-TotalPrice + <fs_booking>-Flightprice.
+          <fs_travel>-TotalPrice = <fs_travel>-TotalPrice + <fs_booking>-Flightprice.
         ENDIF.
-        ENDLOOP.
+      ENDLOOP.
 
-        LOOP AT wtl_book_suppl ASSIGNING FIELD-SYMBOL(<fs_booking_suupl>).
+      LOOP AT wtl_book_suppl ASSIGNING FIELD-SYMBOL(<fs_booking_suupl>).
         IF <fs_booking_suupl>-CurrencyCode IS NOT INITIAL.
-        <fs_travel>-TotalPrice = <fs_travel>-TotalPrice + <fs_booking_suupl>-price.
+          <fs_travel>-TotalPrice = <fs_travel>-TotalPrice + <fs_booking_suupl>-price.
         ENDIF.
-        ENDLOOP.
+      ENDLOOP.
 
-     ENDLOOP.
+    ENDLOOP.
 
-     MODIFY ENTITY IN LOCAL MODE zi_ztravel_tech_m
-     UPDATE FIELDS ( TotalPrice )
-     WITH CORRESPONDING #(  wtl_travel ).
+    MODIFY ENTITY IN LOCAL MODE zi_ztravel_tech_m
+    UPDATE FIELDS ( TotalPrice )
+    WITH CORRESPONDING #(  wtl_travel ).
 
   ENDMETHOD.
 

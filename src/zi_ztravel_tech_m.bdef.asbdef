@@ -1,10 +1,11 @@
-managed with additional save implementation in class zcl_zbp_travel_ayush unique;
+managed implementation in class zcl_zbp_travel_ayush unique;
 strict( 2 );
 
 define behavior for ZI_ZTRAVEL_TECH_M
 implementation in class zcl_zbp_travel_ayush unique
 persistent table ztravel_ayush
 lock master
+with additional save
 authorization master ( instance )
 etag master LastChangedAt
 early numbering
@@ -73,7 +74,8 @@ early numbering
 
 define behavior for ZI_ZBOOKSUPPL_TECH_M //alias <alias_name>
 implementation in class zcl_zbp_booksuppl_ayush unique
-persistent table zbooksup_ayush
+//persistent table zbooksup_ayush
+with unmanaged save with full data
 lock dependent by _Travel
 authorization dependent by _Travel
 etag master LastChangedAt
