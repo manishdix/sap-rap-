@@ -13,12 +13,14 @@ CLASS lsc_zi_ztravel_tech_m IMPLEMENTATION.
 
     Loop AT create-zi_ztravel_tech_m INTO DATA(wel_data).
           TRY.
-              APPEND VALUE #( change_id = cl_system_uuid=>create_uuid_x16_static( )
+              APPEND VALUE #( travelId = wel_data-TravelId
+                             change_id = cl_system_uuid=>create_uuid_x16_static( )
                              changing_operation = 'CREATE'
                              changed_field_name = 'Customer Id'
                              changed_value = wel_data-CustomerId
                               ) TO wtl_travel.
-              APPEND VALUE #( change_id = cl_system_uuid=>create_uuid_x16_static( )
+              APPEND VALUE #( travelId = wel_data-TravelId
+                             change_id = cl_system_uuid=>create_uuid_x16_static( )
                              changing_operation = 'CREATE'
                              changed_field_name = 'Agency Id'
                              changed_value = wel_data-AgencyId
@@ -30,18 +32,43 @@ CLASS lsc_zi_ztravel_tech_m IMPLEMENTATION.
 
     Loop AT update-zi_ztravel_tech_m INTO DATA(wel_data1).
           TRY.
-              APPEND VALUE #( change_id = cl_system_uuid=>create_uuid_x16_static( )
-                             changing_operation = 'CREATE'
+              IF wel_data1-%control-CustomerId = '01'.
+              APPEND VALUE #( travelId = wel_data1-TravelId
+                             change_id = cl_system_uuid=>create_uuid_x16_static( )
+                             changing_operation = 'UPDATE'
                              changed_field_name = 'Customer Id'
+                             changed_value = wel_data1-CustomerId
                               ) TO wtl_travel.
-              APPEND VALUE #( change_id = cl_system_uuid=>create_uuid_x16_static( )
-                             changing_operation = 'CREATE'
+              ENDIF.
+
+              IF wel_data1-%control-AgencyId = '01'.
+              APPEND VALUE #( travelId = wel_data1-TravelId
+                              change_id = cl_system_uuid=>create_uuid_x16_static( )
+                             changing_operation = 'UPDATE'
                              changed_field_name = 'Agency Id'
+                             changed_value = wel_data1-CustomerId
                               ) TO wtl_travel.
+              ENDIF.
             CATCH cx_uuid_error.
               "handle exception
           ENDTRY.
     ENDLOOP.
+
+    Loop AT delete-zi_ztravel_tech_m INTO DATA(wel_data2).
+          TRY.
+
+              APPEND VALUE #( travelId = wel_data2-TravelId
+                             change_id = cl_system_uuid=>create_uuid_x16_static( )
+                             changing_operation = 'DELETE'
+                             changed_field_name = 'Travel Id'
+                              ) TO wtl_travel.
+
+            CATCH cx_uuid_error.
+              "handle exception
+          ENDTRY.
+    ENDLOOP.
+
+    INSERT zlog_travel_m FROM TABLE @wtl_travel.
   ENDMETHOD.
 
 ENDCLASS.
