@@ -1,3 +1,51 @@
+CLASS lsc_zi_ztravel_tech_m DEFINITION INHERITING FROM cl_abap_behavior_saver.
+
+  PROTECTED SECTION.
+
+    METHODS save_modified REDEFINITION.
+
+ENDCLASS.
+
+CLASS lsc_zi_ztravel_tech_m IMPLEMENTATION.
+
+  METHOD save_modified.
+    DATA: wtl_travel TYPE TABLE OF zlog_travel_m.
+
+    Loop AT create-zi_ztravel_tech_m INTO DATA(wel_data).
+          TRY.
+              APPEND VALUE #( change_id = cl_system_uuid=>create_uuid_x16_static( )
+                             changing_operation = 'CREATE'
+                             changed_field_name = 'Customer Id'
+                             changed_value = wel_data-CustomerId
+                              ) TO wtl_travel.
+              APPEND VALUE #( change_id = cl_system_uuid=>create_uuid_x16_static( )
+                             changing_operation = 'CREATE'
+                             changed_field_name = 'Agency Id'
+                             changed_value = wel_data-AgencyId
+                              ) TO wtl_travel.
+            CATCH cx_uuid_error.
+              "handle exception
+          ENDTRY.
+    ENDLOOP.
+
+    Loop AT update-zi_ztravel_tech_m INTO DATA(wel_data1).
+          TRY.
+              APPEND VALUE #( change_id = cl_system_uuid=>create_uuid_x16_static( )
+                             changing_operation = 'CREATE'
+                             changed_field_name = 'Customer Id'
+                              ) TO wtl_travel.
+              APPEND VALUE #( change_id = cl_system_uuid=>create_uuid_x16_static( )
+                             changing_operation = 'CREATE'
+                             changed_field_name = 'Agency Id'
+                              ) TO wtl_travel.
+            CATCH cx_uuid_error.
+              "handle exception
+          ENDTRY.
+    ENDLOOP.
+  ENDMETHOD.
+
+ENDCLASS.
+
 CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
@@ -25,6 +73,8 @@ CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR zi_ztravel_tech_m~val_customerid.
     METHODS calculate_total_price FOR DETERMINE ON MODIFY
       IMPORTING keys FOR zi_ztravel_tech_m~calculate_total_price.
+    METHODS recal_price FOR MODIFY
+      IMPORTING keys FOR ACTION zi_ztravel_tech_m~recal_price.
 
 ENDCLASS.
 
@@ -299,17 +349,26 @@ CLASS lhc_Travel IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD calculate_total_price.
-    READ ENTITY IN LOCAL MODE zi_ztravel_tech_m
+    MODIFY ENTITY IN LOCAL MODE zi_ztravel_tech_m
+    EXECUTE recal_price
+    FROM CORRESPONDING #( keys ).
+
+  ENDMETHOD.
+
+  METHOD recal_price.
+      READ ENTITY IN LOCAL MODE zi_ztravel_tech_m
       FIELDS ( travelID BookingFee CurrencyCode )
       WITH CORRESPONDING #(  keys )
       RESULT DATA(wtl_travel).
 
-    READ ENTITY IN LOCAL MODE zi_zbooking_techm
+    READ ENTITIES OF zi_ztravel_tech_m IN LOCAL MODE
+    ENTITY zi_ztravel_tech_m BY \_Booking
       FIELDS ( FlightPrice CurrencyCode )
       WITH CORRESPONDING #(  wtl_travel )
       RESULT DATA(wtl_booking).
 
-    READ ENTITY IN LOCAL MODE zi_zbooksuppl_tech_m
+    READ ENTITIES OF zi_ztravel_tech_m IN LOCAL MODE
+    ENTITY zi_zbooking_techm BY \_Bookingsuppl
       FIELDS ( Price CurrencyCode )
       WITH CORRESPONDING #(  wtl_booking )
       RESULT DATA(wtl_book_suppl).

@@ -81,6 +81,9 @@ CLASS lhc_ZI_ZBOOKING_TECHM IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD calculate_total_price.
+    MODIFY ENTITY IN LOCAL MODE zi_ztravel_tech_m
+    EXECUTE recal_price
+    FROM CORRESPONDING #( keys ).
   ENDMETHOD.
 
 ENDCLASS.

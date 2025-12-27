@@ -10,6 +10,9 @@ ENDCLASS.
 CLASS lhc_zi_zbooksuppl_tech_m IMPLEMENTATION.
 
   METHOD calculate_total_price.
+  MODIFY ENTITY IN LOCAL MODE zi_ztravel_tech_m
+    EXECUTE recal_price
+    FROM CORRESPONDING #( keys ).
   ENDMETHOD.
 
 ENDCLASS.

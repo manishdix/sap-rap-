@@ -1,4 +1,4 @@
-managed;
+managed with additional save implementation in class zcl_zbp_travel_ayush unique;
 strict( 2 );
 
 define behavior for ZI_ZTRAVEL_TECH_M
@@ -19,6 +19,7 @@ early numbering
   action ( features : instance ) approve  result  [1]   $self ;
   action ( features : instance ) reject result [1] $self;
   validation val_customerid on save { create  ; field CustomerId;  }
+    internal action recal_price;
   determination calculate_total_price on modify { create; field BookingFee, CurrencyCode; }
   mapping for ztravel_ayush
     {
@@ -52,6 +53,7 @@ early numbering
   field ( readonly ) TravelId, BookingId;
   association _Travel;
   association _Bookingsuppl {  create ( features : instance ); }
+
     determination calculate_total_price on modify { create; field FlightPrice, CurrencyCode; }
   mapping for zbooking_ayush
     {
