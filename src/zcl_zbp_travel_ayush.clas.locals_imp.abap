@@ -23,6 +23,8 @@ CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys REQUEST requested_features FOR zi_ztravel_tech_m RESULT result.
     METHODS val_customerid FOR VALIDATE ON SAVE
       IMPORTING keys FOR zi_ztravel_tech_m~val_customerid.
+    METHODS calculate_total_price FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR zi_ztravel_tech_m~calculate_total_price.
 
 ENDCLASS.
 
@@ -278,7 +280,7 @@ CLASS lhc_Travel IMPLEMENTATION.
         FOR ALL ENTRIES IN @wtl_travel
         WHERE customer_Id = @wtl_travel-CustomerId
         INTO TABLE @DATA(wtl_customer) .
-       IF wtl_customer IS NOT INITIAL.
+
         LOOP AT wtl_travel INTO DATA(wel_data).
             IF wel_Data-CustomerId IS INITIAL OR NOT Line_exists( wtl_customer[  customer_id = wel_data-CustomerId ]  ).
                 failed-zi_ztravel_tech_m = VALUE #( BASE failed-zi_ztravel_tech_m (  %tky =  wel_data-%tky   ) ).
@@ -292,8 +294,49 @@ CLASS lhc_Travel IMPLEMENTATION.
                                                                                          ) ).
             ENDIF.
         ENDLOOP.
-       ENDIF.
+
     ENDIF.
+  ENDMETHOD.
+
+  METHOD calculate_total_price.
+    READ ENTITY IN LOCAL MODE zi_ztravel_tech_m
+      FIELDS ( travelID BookingFee CurrencyCode )
+      WITH CORRESPONDING #(  keys )
+      RESULT DATA(wtl_travel).
+
+    READ ENTITY IN LOCAL MODE zi_zbooking_techm
+      FIELDS ( FlightPrice CurrencyCode )
+      WITH CORRESPONDING #(  wtl_travel )
+      RESULT DATA(wtl_booking).
+
+    READ ENTITY IN LOCAL MODE zi_zbooksuppl_tech_m
+      FIELDS ( Price CurrencyCode )
+      WITH CORRESPONDING #(  wtl_booking )
+      RESULT DATA(wtl_book_suppl).
+
+     LOOP AT wtl_travel ASSIGNING FIELD-SYMBOL(<fs_travel>).
+        IF <fs_travel>-CurrencyCode IS NOT INITIAL.
+        <fs_travel>-TotalPrice = <fs_travel>-BookingFee.
+        ENDIF.
+
+        LOOP AT wtl_booking ASSIGNING FIELD-SYMBOL(<fs_booking>).
+        IF <fs_booking>-CurrencyCode IS NOT INITIAL.
+        <fs_travel>-TotalPrice = <fs_travel>-TotalPrice + <fs_booking>-Flightprice.
+        ENDIF.
+        ENDLOOP.
+
+        LOOP AT wtl_book_suppl ASSIGNING FIELD-SYMBOL(<fs_booking_suupl>).
+        IF <fs_booking_suupl>-CurrencyCode IS NOT INITIAL.
+        <fs_travel>-TotalPrice = <fs_travel>-TotalPrice + <fs_booking_suupl>-price.
+        ENDIF.
+        ENDLOOP.
+
+     ENDLOOP.
+
+     MODIFY ENTITY IN LOCAL MODE zi_ztravel_tech_m
+     UPDATE FIELDS ( TotalPrice )
+     WITH CORRESPONDING #(  wtl_travel ).
+
   ENDMETHOD.
 
 ENDCLASS.

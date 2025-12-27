@@ -13,12 +13,13 @@ early numbering
   update;
   delete;
   field ( readonly ) TravelId;
-  field ( mandatory ) AgencyId, OverallStatus;
+  field ( mandatory ) AgencyId, Customerid, OverallStatus;
   association _Booking { create ( features : instance ); }
   factory action copyTravel [1];
   action ( features : instance ) approve  result  [1]   $self ;
   action ( features : instance ) reject result [1] $self;
-  validation val_customerid on save { create  ; field CustomerId, AgencyId;  }
+  validation val_customerid on save { create  ; field CustomerId;  }
+  determination calculate_total_price on modify { create; field BookingFee, CurrencyCode; }
   mapping for ztravel_ayush
     {
       TravelId      = travel_id;
@@ -51,6 +52,7 @@ early numbering
   field ( readonly ) TravelId, BookingId;
   association _Travel;
   association _Bookingsuppl {  create ( features : instance ); }
+    determination calculate_total_price on modify { create; field FlightPrice, CurrencyCode; }
   mapping for zbooking_ayush
     {
       TravelId      = travel_id;
@@ -78,6 +80,7 @@ early numbering
   update;
   delete;
   field ( readonly ) TravelId, BookingId, BookingSupplementId;
+   determination calculate_total_price on modify { create; field Price, CurrencyCode; }
   association _Travel;
   association _Booking;
   mapping for zbooksup_ayush

@@ -5,6 +5,8 @@ CLASS lhc_ZI_ZBOOKING_TECHM DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING entities FOR CREATE zi_zbooking_techm\_Bookingsuppl.
     METHODS get_instance_features FOR INSTANCE FEATURES
       IMPORTING keys REQUEST requested_features FOR ZI_ZBOOKING_TECHM RESULT result.
+    METHODS calculate_total_price FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR zi_zbooking_techm~calculate_total_price.
 
 ENDCLASS.
 
@@ -76,6 +78,9 @@ CLASS lhc_ZI_ZBOOKING_TECHM IMPLEMENTATION.
                                                                 THEN '01' )
                         ) ).
    ENDIF.
+  ENDMETHOD.
+
+  METHOD calculate_total_price.
   ENDMETHOD.
 
 ENDCLASS.

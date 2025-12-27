@@ -15,7 +15,6 @@ define behavior for ZC_zBOOKING_TECHM //alias <alias_name>
 {
   use update;
   use delete;
-
   use association _Travel;
   use association _Bookingsuppl { create; }
 }
