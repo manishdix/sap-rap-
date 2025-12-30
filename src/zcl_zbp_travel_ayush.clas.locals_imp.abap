@@ -84,7 +84,7 @@ CLASS lsc_zi_ztravel_tech_m IMPLEMENTATION.
                                                                             currency_code = CurrencyCode last_changed_at = LastChangedAt
                                                                             price = Price travel_id = TravelId supplement_id = SupplementId
                                                                             ).
-      INSERT zbooksup_ayush FROM TABLE @wtl_supplement.
+      UPDATE zbooksup_ayush FROM TABLE @wtl_supplement.
     ENDIF.
 
     IF delete-zi_zbooksuppl_tech_m IS NOT INITIAL.

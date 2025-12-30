@@ -20,7 +20,7 @@ early numbering
   action ( features : instance ) approve  result  [1]   $self ;
   action ( features : instance ) reject result [1] $self;
   validation val_customerid on save { create  ; field CustomerId;  }
-    internal action recal_price;
+  internal action recal_price;
   determination calculate_total_price on modify { create; field BookingFee, CurrencyCode; }
   mapping for ztravel_ayush
     {

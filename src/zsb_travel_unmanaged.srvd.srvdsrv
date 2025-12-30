@@ -1,0 +1,5 @@
+@EndUserText.label: 'ZC_TRAVEL_UNMANAGED'
+define service ZSB_TRAVEL_UNMANAGED {
+  expose ZC_TRAVEL_unmanaged;
+  expose ZC_ZBOOKING_UNMANAGED;
+}
