@@ -1,6 +1,7 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'ZC_ZBOOKSUPP_MANAGED_D'
 @Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
 define view entity ZC_ZBOOKSUPP_MANAGED_D as projection on zi_zbooksupp_managed_d
 {
     key BooksupplUuid,

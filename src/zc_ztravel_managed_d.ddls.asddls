@@ -1,6 +1,7 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'ZI_ZTRAVEL_MANAGED_D'
 @Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
 define  root   view  entity  ZC_ZTRAVEL_MANAGED_D  provider contract transactional_query as projection on zi_ztravel_managed_d 
 {
     key TravelUuid,

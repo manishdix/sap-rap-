@@ -1,6 +1,7 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'ZI_ZBOOKING_MANAGED_D'
 @Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
 define view entity ZC_ZBOOKING_MANAGED_D as projection on zi_zbooking_managed_d
 {
     key BookingUuid,
