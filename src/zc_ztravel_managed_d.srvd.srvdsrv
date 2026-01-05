@@ -1,0 +1,6 @@
+@EndUserText.label: 'ZC_ZTRAVEL_MANAGED_D'
+define service ZC_ZTRAVEL_MANAGED_D {
+  expose ZC_ZTRAVEL_MANAGED_D;
+  expose ZC_ZBOOKING_MANAGED_D;
+  expose ZC_ZBOOKSUPP_MANAGED_D;
+}

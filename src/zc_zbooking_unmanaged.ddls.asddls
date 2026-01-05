@@ -18,12 +18,12 @@ define view entity  ZC_ZBOOKING_UNMANAGED as projection on ZI_ZBOOKING_UNMANAGED
       @Semantics.amount.currencyCode: 'CurrencyCode'
       FlightPrice,
       CurrencyCode,
-      @ObjectModel.text.element: [ 'BookingStatusText' ]
-      BookingStatus,
-      _Booking_Status._Text.Text as BookingStatusText : localized,
-      LastChangedAt, 
+//      @ObjectModel.text.element: [ 'BookingStatusText' ]
+//      BookingStatus,
+//      _Booking_Status._Text.Text as BookingStatusText : localized,
+//      LastChangedAt, 
       /* Associations */
-      _Booking_Status,
+//      _Booking_Status,
       _Carrier,
       _Connection,
       _Customer,

@@ -1,0 +1,58 @@
+managed implementation in class zbp_i_ztravel_managed_d unique;
+strict ( 2 );
+
+define behavior for zi_ztravel_managed_d //alias <alias_name>
+persistent table /dmo/a_travel_d
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create ( authorization : global );
+  update;
+  delete;
+  field ( readonly, numbering : managed ) TravelUuid ;
+  association _booking { create; }
+}
+
+define behavior for zi_zbooking_managed_d //alias <alias_name>
+persistent table /dmo/a_booking_d
+lock dependent by _Travel
+authorization dependent by _Travel
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly, numbering : managed ) BookingUuid;
+  field ( readonly  ) TravelUuid;
+  association _Travel;
+  association _BookingSupplement { create; }
+  mapping for /dmo/a_booking_d {
+  TravelUuid = parent_uuid;
+  BookingUuid = booking_uuid;
+  BookingId = booking_id;
+  BookingDate = booking_date;
+  BookingStatus = booking_status;
+  CurrencyCode = currency_code;
+  LocalLastChangedAt = local_last_changed_at;
+  CustomerID = customer_id;
+  FlightPrice = flight_price;
+  ConnectionID = connection_id;
+  AirlineID = carrier_id;
+  FlightDate = flight_date;
+  }
+}
+
+define behavior for zi_zbooksupp_managed_d //alias <alias_name>
+persistent table /dmo/a_bksuppl_d
+lock dependent by _travel
+authorization dependent by _travel
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly, numbering : managed ) BooksupplUuid;
+  field ( readonly ) TravelUuid;
+  field ( readonly  ) BookingUuid;
+  association _travel;
+  association _booking;
+}

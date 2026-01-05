@@ -84,13 +84,13 @@ annotate entity ZC_ZBOOKING_UNMANAGED
     element: 'Currency'
   } }]
   CurrencyCode;
-  @UI.lineItem: [{ position: 80 }]
-  @UI.identification: [{ position: 80 }]
-  @UI.textArrangement: #TEXT_ONLY
-  @Consumption.valueHelpDefinition: [{ entity: {
-      name: '/DMO/I_Booking_Status_VH',
-      element: 'BookingStatus'
-  } }]
-  BookingStatus;
+//  @UI.lineItem: [{ position: 80 }]
+//  @UI.identification: [{ position: 80 }]
+//  @UI.textArrangement: #TEXT_ONLY
+//  @Consumption.valueHelpDefinition: [{ entity: {
+//      name: '/DMO/I_Booking_Status_VH',
+//      element: 'BookingStatus'
+//  } }]
+//  BookingStatus;
     
 }
