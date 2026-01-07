@@ -24,9 +24,12 @@ annotate entity ZC_ZTRAVEL_MANAGED_D
              position:      20,
              targetElement: '_booking'}]
  @UI.hidden : true
+ 
   TravelUuid;
 
-  @UI: { lineItem:       [ { position: 10, importance: #HIGH }
+  @UI: { lineItem:       [ { position: 10, importance: #HIGH }, { dataAction: 'discountadded', label: 'Discount Added', type: #FOR_ACTION},
+                        { type: #FOR_ACTION, dataAction: 'acceptTravel', label : 'Accept Travel' },
+                        { type: #FOR_ACTION, dataAction: 'rejectTravel', label : 'Reject Travel'}
   //                           { type: #FOR_ACTION, dataAction: 'acceptTravel', label: 'Accept Travel' },
   //                           { type: #FOR_ACTION, dataAction: 'rejectTravel', label: 'Reject Travel' },
   //                           { type: #FOR_ACTION, dataAction: 'deductDiscount', label: 'Deduct Discount', invocationGrouping: #CHANGE_SET }
@@ -38,6 +41,7 @@ annotate entity ZC_ZTRAVEL_MANAGED_D
                            ],
          selectionField: [ { position: 10 } ] }
          @Search.defaultSearchElement: true
+   
   TravelId;
 
   @UI: { lineItem:       [ { position: 20, importance: #HIGH } ] ,

@@ -17,6 +17,10 @@ authorization master ( instance, global )
   field( readonly ) TravelId;
   action acceptTravel result[1] $self;
   action rejectTravel result[1] $self;
+  action discountadded parameter za_entity_discount_d result[1] $self;
+  determination setTravelId on save { create; }
+  determination setOverallStatus on modify { update;create; field OverallStatus; }
+  determination calculatePrice on modify { update; field BookingFee, CurrencyCode ; }
 
   association _booking {     create(authorization : update); }
   mapping for /dmo/a_travel_d{
