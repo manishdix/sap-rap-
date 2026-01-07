@@ -5,14 +5,20 @@ define behavior for zi_ztravel_managed_d //alias <alias_name>
 implementation in class zbp_i_ztravel_managed_d unique
 persistent table /dmo/a_travel_d
 lock master
-authorization master ( instance )
+//authorization master ( instance )
+authorization master ( instance, global )
 //etag master <field_name>
 {
-  create ( authorization : global );
-  update;
+  create(precheck);
+  update(precheck);
   delete;
+//  field ( readonly, numbering : managed ) TravelUuid ;
   field ( readonly, numbering : managed ) TravelUuid ;
-  association _booking { create; }
+  field( readonly ) TravelId;
+  action acceptTravel result[1] $self;
+  action rejectTravel result[1] $self;
+
+  association _booking {     create(authorization : update); }
   mapping for /dmo/a_travel_d{
   TravelId = Travel_Id;
   TravelUUid = Travel_Uuid;
@@ -44,6 +50,7 @@ authorization dependent by _Travel
   delete;
   field ( readonly, numbering : managed ) BookingUuid;
   field ( readonly  ) TravelUuid;
+  field( readonly ) BookingId;
   association _Travel;
   association _BookingSupplement { create; }
   mapping for /dmo/a_booking_d {

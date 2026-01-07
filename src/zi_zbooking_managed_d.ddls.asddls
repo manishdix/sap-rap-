@@ -32,7 +32,7 @@ define view entity zi_zbooking_managed_d
       local_last_changed_at as LocalLastChangedAt,
 
       //Associations
-      _Travel,
+      _travel,
       _BookingSupplement,
 
       _Customer,
