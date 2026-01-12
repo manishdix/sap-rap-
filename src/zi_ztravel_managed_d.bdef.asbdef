@@ -53,7 +53,7 @@ authorization master ( instance, global )
 
   validation ValidateCustomerId on save { create; field CustomerId; }
 
-  draft action Edit;
+  draft action Edit with additional implementation;
   draft action Activate optimized;
   draft action Discard;
   draft action Resume;

@@ -107,24 +107,24 @@ CLASS lhc_zi_zbooking_managed_d IMPLEMENTATION.
     FIELDS ( TravelUuid BookingUuid CustomerId )
     WITH CORRESPONDING #(  keys )
     RESULT DATA(wtl_travel).
+*
+*    LOOP AT wtl_travel INTO DATA(wel_travel).
+*            reported-zi_ztravel_managed_d = VALUE #( BASE reported-zi_ztravel_managed_d (
+*                                                                                      %tky = wel_travel-%tky
+*                                                                                      %state_area = 'VALIDATE_CUSTOMER1') ).
+*        IF wel_travel-CustomerId IS INITIAL.
+*            failed-zi_ztravel_managed_d  = VALUE #(  (  %tky = wel_travel-%tky ) ).
+*            reported-zi_zbooking_managed_d = VALUE #( BASE reported-zi_zbooking_managed_d ( %msg = new_message_with_text(
+*                                                                                               severity = if_abap_behv_message=>severity-error
+*                                                                                               text     = 'Custom id is not present'
+*                                                                                             )
+*                                                                                      %tky = wel_travel-%tky
+*                                                                                      %state_area = 'VALIDATE_CUSTOMER1'
+*                                                                                      %element-customerid = if_abap_behv=>mk-on
+*                                                                                       %path = VALUE #( zi_ztravel_managed_d = VALUE #(  TravelUuid = wel_travel-TravelUuid ) ) ) ).
+*        ENDIF.
 
-    LOOP AT wtl_travel INTO DATA(wel_travel).
-            reported-zi_ztravel_managed_d = VALUE #( BASE reported-zi_ztravel_managed_d (
-                                                                                      %tky = wel_travel-%tky
-                                                                                      %state_area = 'VALIDATE_CUSTOMER1') ).
-        IF wel_travel-CustomerId IS INITIAL.
-            failed-zi_ztravel_managed_d  = VALUE #(  (  %tky = wel_travel-%tky ) ).
-            reported-zi_zbooking_managed_d = VALUE #( BASE reported-zi_zbooking_managed_d ( %msg = new_message_with_text(
-                                                                                               severity = if_abap_behv_message=>severity-error
-                                                                                               text     = 'Custom id is not present'
-                                                                                             )
-                                                                                      %tky = wel_travel-%tky
-                                                                                      %state_area = 'VALIDATE_CUSTOMER1'
-                                                                                      %element-customerid = if_abap_behv=>mk-on
-                                                                                       %path = VALUE #( zi_ztravel_managed_d = VALUE #(  TravelUuid = wel_travel-TravelUuid ) ) ) ).
-        ENDIF.
-
-    ENDLOOP.
+*    ENDLOOP.
 
   ENDMETHOD.
 

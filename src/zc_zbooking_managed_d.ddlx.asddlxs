@@ -67,5 +67,6 @@ annotate entity ZC_ZBOOKING_MANAGED_D
   
   
   @UI.hidden: true
+
   LocalLastChangedAt;   
 }

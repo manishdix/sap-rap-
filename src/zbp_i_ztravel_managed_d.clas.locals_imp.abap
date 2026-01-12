@@ -33,6 +33,8 @@ CLASS lhc_zi_ztravel_managed_d DEFINITION INHERITING FROM cl_abap_behavior_handl
       IMPORTING keys FOR ACTION zi_ztravel_managed_d~recalculateprice.
     METHODS validatecustomerid FOR VALIDATE ON SAVE
       IMPORTING keys FOR zi_ztravel_managed_d~validatecustomerid.
+    METHODS edit FOR MODIFY
+      IMPORTING keys FOR ACTION zi_ztravel_managed_d~edit.
 
 ENDCLASS.
 
@@ -329,6 +331,9 @@ CLASS lhc_zi_ztravel_managed_d IMPLEMENTATION.
 
     ENDLOOP.
 
+  ENDMETHOD.
+
+  METHOD Edit.
   ENDMETHOD.
 
 ENDCLASS.

@@ -17,10 +17,15 @@ define  root   view  entity  ZC_ZTRAVEL_MANAGED_D  provider contract transaction
     CurrencyCode,
     Description,
     OverallStatus,
+    @Semantics.user.createdBy: true
     LocalCreatedBy,
+    @Semantics.systemDateTime.createdAt: true
     LocalCreatedAt,
+    @Semantics.user.localInstanceLastChangedBy: true
+    @Semantics.systemDateTime.localInstanceLastChangedAt: true
     LocalLastChangedBy,
     LocalLastChangedAt,
+    @Semantics.systemDateTime.lastChangedAt: true
     LastChangedAt,
     /* Associations */
     _Agency,
