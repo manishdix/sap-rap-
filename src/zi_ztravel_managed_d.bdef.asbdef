@@ -1,28 +1,37 @@
 managed;
 strict ( 2 );
-
+with draft;
 define behavior for zi_ztravel_managed_d //alias <alias_name>
 implementation in class zbp_i_ztravel_managed_d unique
 persistent table /dmo/a_travel_d
 lock master
+total etag LastChangedAt
+draft table zdr_ztravel
 //authorization master ( instance )
 authorization master ( instance, global )
 //etag master <field_name>
 {
-  create(precheck);
+  create(precheck ) {default function GetDefaultsForCreate; }
   update(precheck);
   delete;
 //  field ( readonly, numbering : managed ) TravelUuid ;
   field ( readonly, numbering : managed ) TravelUuid ;
   field( readonly ) TravelId;
+  field( readonly ) overallStatus;
   action acceptTravel result[1] $self;
   action rejectTravel result[1] $self;
   action discountadded parameter za_entity_discount_d result[1] $self;
-  determination setTravelId on save { create; }
-  determination setOverallStatus on modify { update;create; field OverallStatus; }
-  determination calculatePrice on modify { update; field BookingFee, CurrencyCode ; }
 
-  association _booking {     create(authorization : update); }
+  determination setTravelId on save { create; }
+  determination setOverallStatus on save { create; }
+  determination calculatePrice on modify { create; field BookingFee, CurrencyCode ; }
+  internal action recalculatePrice;
+  side effects {
+  field BookingFee affects field TotalPrice;
+  field CurrencyCode affects field TotalPrice;
+
+}
+  association _booking {     create(authorization : update);  with draft; }
   mapping for /dmo/a_travel_d{
   TravelId = Travel_Id;
   TravelUUid = Travel_Uuid;
@@ -41,11 +50,25 @@ authorization master ( instance, global )
   OverallStatus = overall_status;
   LocalLastChangedAt = local_last_changed_at;
   }
+
+  validation ValidateCustomerId on save { create; field CustomerId; }
+
+  draft action Edit;
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Resume;
+  draft determine action Prepare{
+  validation ValidateCustomerId;
+  validation zi_zbooking_managed_d~ValidateCustomerId;
+  validation zi_zbooksupp_managed_d~ValidateCustomerId1;
+  }
+
 }
 
 define behavior for zi_zbooking_managed_d //alias <alias_name>
 implementation in class zbp_i_zbooking_managed_d unique
 persistent table /dmo/a_booking_d
+draft table zdr_zbooking
 lock dependent by _Travel
 authorization dependent by _Travel
 //etag master <field_name>
@@ -55,8 +78,12 @@ authorization dependent by _Travel
   field ( readonly, numbering : managed ) BookingUuid;
   field ( readonly  ) TravelUuid;
   field( readonly ) BookingId;
-  association _Travel;
-  association _BookingSupplement { create; }
+  determination setBookingId on save { create; }
+  determination setBookingDate on save { create; }
+  determination calculateTotalPrice on modify { create; field FlightPrice, CurrencyCode ; }
+  association _Travel { with draft; }
+  association _BookingSupplement { create; with draft; }
+
   mapping for /dmo/a_booking_d {
   TravelUuid = parent_uuid;
   BookingUuid = booking_uuid;
@@ -71,12 +98,17 @@ authorization dependent by _Travel
   AirlineID = carrier_id;
   FlightDate = flight_date;
   }
+
+  side effects { field FlightPrice affects field _travel.TotalPrice; }
+
+  validation ValidateCustomerId on save { create; field CustomerId;  }
 }
 
 define behavior for zi_zbooksupp_managed_d //alias <alias_name>
 implementation in class zbp_i_zbooksupp_managed_d unique
 persistent table /dmo/a_bksuppl_d
 lock dependent by _travel
+draft table zdr_zsupplement
 authorization dependent by _travel
 //etag master <field_name>
 {
@@ -85,8 +117,8 @@ authorization dependent by _travel
   field ( readonly, numbering : managed ) BooksupplUuid;
   field ( readonly ) TravelUuid;
   field ( readonly  ) BookingUuid;
-  association _travel;
-  association _booking;
+  association _travel{ with draft; }
+  association _booking { with draft; }
   mapping for /dmo/a_bksuppl_d{
   TravelUuid = root_uuid;
   BooksupplUuid = booksuppl_uuid;
@@ -97,4 +129,5 @@ authorization dependent by _travel
   BookingSupplementID = booking_supplement_id;
   BookSupplPrice = price;
   }
+  validation ValidateCustomerId1 on save { create; field SupplementID; }
 }

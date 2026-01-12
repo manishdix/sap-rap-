@@ -1,6 +1,7 @@
 projection;
 strict ( 2 );
 
+use side effects;
 define behavior for ZC_ZTRAVEL_MANAGED_D //alias <alias_name>
 {
   use create;

@@ -9,22 +9,21 @@
         value: 'TravelId'
     }
 }
-annotate entity ZC_ZTRAVEL_MANAGED_D
-    with 
+annotate entity ZC_ZTRAVEL_MANAGED_D with
 {
- @UI.facet: [{ id:            'Travel',
-             purpose:       #STANDARD,
-             type:          #IDENTIFICATION_REFERENCE,
-             label:         'Travel',
-             position:      10 },
-           { id:            'Booking',
-             purpose:       #STANDARD,
-             type:          #LINEITEM_REFERENCE,
-             label:         'Booking',
-             position:      20,
-             targetElement: '_booking'}]
- @UI.hidden : true
- 
+  @UI.facet: [{ id:            'Travel',
+              purpose:       #STANDARD,
+              type:          #IDENTIFICATION_REFERENCE,
+              label:         'Travel',
+              position:      10 },
+            { id:            'Booking',
+              purpose:       #STANDARD,
+              type:          #LINEITEM_REFERENCE,
+              label:         'Booking',
+              position:      20,
+              targetElement: '_booking'}]
+  @UI.hidden : true
+
   TravelUuid;
 
   @UI: { lineItem:       [ { position: 10, importance: #HIGH }, { dataAction: 'discountadded', label: 'Discount Added', type: #FOR_ACTION},
@@ -40,8 +39,8 @@ annotate entity ZC_ZTRAVEL_MANAGED_D
   //                           { type: #FOR_ACTION, dataAction: 'deductDiscount', label: 'Deduct Discount' }
                            ],
          selectionField: [ { position: 10 } ] }
-         @Search.defaultSearchElement: true
-   
+  @Search.defaultSearchElement: true
+
   TravelId;
 
   @UI: { lineItem:       [ { position: 20, importance: #HIGH } ] ,
@@ -52,6 +51,7 @@ annotate entity ZC_ZTRAVEL_MANAGED_D
   @UI: { lineItem:       [ { position: 30, importance: #HIGH } ] ,
          identification: [ { position: 30 } ],
          selectionField: [ { position: 30 } ] }
+  @Consumption.valueHelpDefinition: [{ entity: {  name: '/DMO/I_Customer_StdVH', element: 'CustomerID'  }, useForValidation: true }]
   CustomerId;
 
   @UI: { lineItem:       [ { position: 40, importance: #MEDIUM } ] ,
@@ -72,20 +72,20 @@ annotate entity ZC_ZTRAVEL_MANAGED_D
 
   //  CurrencyCode;
 
-    @UI: { lineItem:       [ { position: 90, importance: #MEDIUM } ] ,
-           identification: [ { position: 90 } ] }
-    Description;
+  @UI: { lineItem:       [ { position: 90, importance: #MEDIUM } ] ,
+         identification: [ { position: 90 } ] }
+  Description;
 
-    @UI: { lineItem:       [ { position: 99, importance: #HIGH } ] ,
-           identification: [ { position: 99, label: 'Status' } ],
-           selectionField: [ { position: 40 } ] ,
-           textArrangement: #TEXT_ONLY }
-    OverallStatus;
+  @UI: { lineItem:       [ { position: 99, importance: #HIGH } ] ,
+         identification: [ { position: 99, label: 'Status' } ],
+         selectionField: [ { position: 40 } ] ,
+         textArrangement: #TEXT_ONLY }
+  OverallStatus;
 
-    @UI.hidden: true
-    overallstatustext;
+  @UI.hidden: true
+  overallstatustext;
 
   @UI.hidden: true
   LocalLastChangedAt;
-    
+
 }
